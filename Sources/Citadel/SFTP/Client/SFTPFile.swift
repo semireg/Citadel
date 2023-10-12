@@ -158,10 +158,10 @@ public final class SFTPFile {
                 throw SFTPError.errorStatus(status)
             }
             
+            self.onWrite?(data.readerIndex, data.readableBytes)
             self.logger.debug("SFTP wrote \(slice.readableBytes) @ \(Int(offset) + data.readerIndex - slice.readableBytes) to file \(self.handle.sftpHandleDebugDescription)")
         }
 
-        self.onWrite?(data.readerIndex, data.readableBytes)
         self.logger.debug("SFTP finished writing \(data.readerIndex) bytes @ \(offset) to file \(self.handle.sftpHandleDebugDescription)")
     }
 
