@@ -12,6 +12,8 @@ public final class SFTPFile {
     /// Indicates whether the file's handle was still valid at the time the getter was called.
     public private(set) var isActive: Bool
     
+    private var onWrite: (@Sendable (Int, Int) -> ())?
+    
     /// The raw buffer whose contents are were contained in the `.handle()` result from the SFTP server.
     /// Used for performing operations on the open file.
     ///
@@ -34,6 +36,10 @@ public final class SFTPFile {
         self.handle = handle
         self.client = client
         self.path = path
+    }
+    
+    public func onWrite(perform onWrite: @escaping @Sendable (Int, Int) -> ()) {
+        self.onWrite = onWrite
     }
     
     /// A `Logger` for the file. Uses the logger of the client that opened the file.
@@ -155,6 +161,7 @@ public final class SFTPFile {
             self.logger.debug("SFTP wrote \(slice.readableBytes) @ \(Int(offset) + data.readerIndex - slice.readableBytes) to file \(self.handle.sftpHandleDebugDescription)")
         }
 
+        self.onWrite?(data.readerIndex, data.readableBytes)
         self.logger.debug("SFTP finished writing \(data.readerIndex) bytes @ \(offset) to file \(self.handle.sftpHandleDebugDescription)")
     }
 
